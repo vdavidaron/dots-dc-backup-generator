@@ -3,9 +3,9 @@ FROM python:3.13
 RUN mkdir /app/
 WORKDIR /app
 
-COPY src/<<INSERT_FOLDER_NAME>> src/<<INSERT_FOLDER_NAME>>
+COPY src/BackupgenService src/BackupgenService
 COPY pyproject.toml ./
 COPY README.md ./
 RUN pip install ./
 
-ENTRYPOINT python3 src/<<INSERT_FOLDER_NAME>>/<<INSERT_IMPLEMENTATION_PYTHON_FILENAME>>.py
+ENTRYPOINT python3 src/BackupgenService/backupgenservice.py

@@ -6,7 +6,7 @@ from dots_infrastructure.CalculationServiceHelperFunctions import get_single_par
 from dots_infrastructure.Logger import LOGGER
 from esdl import EnergySystem
 
-class CalculationServiceTest(CalculationServiceTestBase):
+class BackupgenService(BackupgenServiceBase):
 
     def init_calculation_service(self, energy_system: esdl.EnergySystem):
         LOGGER.info("init calculation service")
@@ -29,6 +29,8 @@ class CalculationServiceTest(CalculationServiceTestBase):
     
 if __name__ == "__main__":
 
-    helics_simulation_executor = CalculationServiceTest()
+    helics_simulation_executor = BackupgenService()
     helics_simulation_executor.start_simulation()
     helics_simulation_executor.stop_simulation()
+
+#check change

@@ -1,62 +1,35 @@
 {
-    "name": "test",
-    "esdl_type" : "EConnection",
-    "description" : "this is a test description",
-    "relevant_links" : [
+    "name": "BackupGen_Service",
+    "esdl_type": "GasProducer",
+    "description": "Simulates backup generation with spin-up delay.",
+    "relevant_links": [],
+    "calculations": [
         {
-            "name" : "test link",
-            "url" : "https://example.com/test",
-            "description" : "this is a test link"
-        },
-        {
-            "name" : "another test link",
-            "url" : "https://example.com/anothertest",
-            "description" : "this is another link"
-        }
-    ],
-    "calculations" : [
-        {
-            "name": "test calculation",
-            "description" : "test",
+            "name": "real_time_backup",
             "time_period_in_seconds" : 900,
             "offset_in_seconds" : 0,
-            "inputs" : [
+            "description": "Handles diesel generator output based on EMS requests.",
+            "inputs": [
                 {
-                    "name" : "input1",
-                    "esdl_type" : "PVInstallation",
-                    "data_type" : "DOUBLE",
-                    "description" : "input 1 description",
-                    "unit" : "K"
+                    "name": "Backup_requested_power",
+                    "esdl_type": "ElectricityNetwork",
+                    "data_type": "DOUBLE",
+                    "description": "Command to turn on or increase load.",
+                    "unit": "W"
                 }
             ],
-            "outputs" : [
+            "outputs": [
                 {
-                    "name" : "output1",
-                    "data_type" : "DOUBLE",
-                    "description" : "output 1 description",
-                    "unit" : "W"
+                    "name": "Backup_supplied_power",
+                    "data_type": "DOUBLE",
+                    "description": "Actual power supplied.",
+                    "unit": "W"
                 },
                 {
-                    "name" : "output2",
-                    "data_type" : "DOUBLE",
-                    "description" : "output 2 description",
-                    "unit" : "W"
-                }
-            ]
-        },
-        {
-            "name": "test calculation 2",
-            "description" : "test",
-            "time_period_in_seconds" : 900,
-            "offset_in_seconds" : 100,
-            "inputs" : [
-            ],
-            "outputs" : [
-                {
-                    "name" : "output3",
-                    "data_type" : "DOUBLE",
-                    "description" : "output 3 description",
-                    "unit" : "W"
+                    "name": "available_max_power",
+                    "data_type": "DOUBLE",
+                    "description": "Maximum capacity of the generator.",
+                    "unit": "W"
                 }
             ]
         }
