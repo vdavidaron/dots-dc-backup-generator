@@ -18,10 +18,6 @@ class BackupgenServiceBase(HelicsSimulationExecutor):
         self.real_time_backup_period_seconds = 900
         real_time_backup_inputs = [
         
-            SubscriptionDescription(esdl_type="ElectricityNetwork", 
-                                    input_name="backup_requested_power", 
-                                    input_unit="W", 
-                                    input_type=h.HelicsDataType.DOUBLE),
         ]
         real_time_backup_outputs = [
         

@@ -8,11 +8,7 @@ Simulates backup generation with spin-up delay.
 
 ### real_time_backup 
 
-Handles diesel generator output based on EMS requests.
-#### Input parameters
-|Name            |esdl_type            |data_type            |unit            |description            |
-|----------------|---------------------|---------------------|----------------|-----------------------|
-|Backup_requested_power|ElectricityNetwork|DOUBLE|W|Command to turn on or increase load.|
+Provides backup generation capacity and status.
 #### Output values
 |Name             |data_type             |unit             |description             |
 |-----------------|----------------------|-----------------|------------------------|
