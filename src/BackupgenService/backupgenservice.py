@@ -75,6 +75,11 @@ class BackupgenService(BackupgenServiceBase):
             state["status"] = "OFF"
             actual_power_w = 0.0
 
+        # Write internal states to InfluxDB for debugging/dashboards
+        self.influx_connector.set_time_step_data_point(esdl_id, "status", simulation_time, state["status"])
+        self.influx_connector.set_time_step_data_point(esdl_id, "backup_supplied_power", simulation_time, actual_power_w)
+        self.influx_connector.set_time_step_data_point(esdl_id, "available_max_power", simulation_time, capacity_w)
+
         return RealTimeBackupOutput(
             backup_supplied_power=actual_power_w,
             available_max_power=capacity_w
