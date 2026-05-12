@@ -16,7 +16,7 @@ class BackupgenService(BackupgenServiceBase):
 
     def init_calculation_service(self, energy_system: EnergySystem):
         super().init_calculation_service(energy_system)
-        LOGGER.info("Initializing Backup Generator Service (Realistic v2.1)...")
+        LOGGER.info("Initializing Backup Generator Service...")
         self.generators = {}
         
         for esdl_id in self.simulator_configuration.esdl_ids:

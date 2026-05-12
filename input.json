@@ -11,7 +11,7 @@
             "description": "Handles diesel generator output based on EMS requests.",
             "inputs": [
                 {
-                    "name": "Backup_requested_power",
+                    "name": "backup_requested_power",
                     "esdl_type": "ElectricityNetwork",
                     "data_type": "DOUBLE",
                     "description": "Command to turn on or increase load.",
@@ -20,7 +20,7 @@
             ],
             "outputs": [
                 {
-                    "name": "Backup_supplied_power",
+                    "name": "backup_supplied_power",
                     "data_type": "DOUBLE",
                     "description": "Actual power supplied.",
                     "unit": "W"
