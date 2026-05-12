@@ -5,19 +5,11 @@
     "relevant_links": [],
     "calculations": [
         {
-            "name": "real_time_backup",
-            "time_period_in_seconds" : 900,
-            "offset_in_seconds" : 0,
-            "description": "Handles diesel generator output based on EMS requests.",
-            "inputs": [
-                {
-                    "name": "backup_requested_power",
-                    "esdl_type": "ElectricityNetwork",
-                    "data_type": "DOUBLE",
-                    "description": "Command to turn on or increase load.",
-                    "unit": "W"
-                }
-            ],
+            "name": "backup_state",
+            "time_period_in_seconds": 900,
+            "offset_in_seconds": 0,
+            "description": "Publishes generator output and capacity.",
+            "inputs": [],
             "outputs": [
                 {
                     "name": "backup_supplied_power",
@@ -32,6 +24,22 @@
                     "unit": "W"
                 }
             ]
+        },
+        {
+            "name": "backup_dispatch",
+            "time_period_in_seconds": 900,
+            "offset_in_seconds": 0,
+            "description": "Consumes the dispatch command from the EMS.",
+            "inputs": [
+                {
+                    "name": "backup_requested_power",
+                    "esdl_type": "ElectricityNetwork",
+                    "data_type": "DOUBLE",
+                    "description": "Command to turn on or increase load.",
+                    "unit": "W"
+                }
+            ],
+            "outputs": []
         }
     ]
 }

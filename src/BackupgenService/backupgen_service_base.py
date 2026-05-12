@@ -14,13 +14,10 @@ class BackupgenServiceBase(HelicsSimulationExecutor):
         self.esdl_obj_mapping : dict[EsdlId, GasProducer]= {}
 
         
-        # Calculation: real_time_backup
-        self.real_time_backup_period_seconds = 900
-        real_time_backup_inputs = [
-        
-        ]
-        real_time_backup_outputs = [
-        
+        # Calculation: backup_state
+        self.backup_state_period_seconds = 900
+        backup_state_inputs = []
+        backup_state_outputs = [
             PublicationDescription(global_flag=True, 
                                     esdl_type="GasProducer",
                                     output_name="backup_supplied_power",
@@ -32,18 +29,37 @@ class BackupgenServiceBase(HelicsSimulationExecutor):
                                     output_unit="W", 
                                     data_type=h.HelicsDataType.DOUBLE),
         ]
-        real_time_backup_information = HelicsCalculationInformation(
+        backup_state_information = HelicsCalculationInformation(
             time_period_in_seconds=900,
             offset=0, 
             uninterruptible=False, 
             wait_for_current_time_update=False, 
             terminate_on_error=True, 
-            calculation_name="real_time_backup", 
-            inputs=real_time_backup_inputs, 
-            outputs=real_time_backup_outputs, 
-            calculation_function=self.real_time_backup
+            calculation_name="backup_state", 
+            inputs=backup_state_inputs, 
+            outputs=backup_state_outputs, 
+            calculation_function=self.backup_state
         )
-        self.add_calculation(real_time_backup_information)
+        self.add_calculation(backup_state_information)
+
+        # Calculation: backup_dispatch
+        self.backup_dispatch_period_seconds = 900
+        backup_dispatch_inputs = [
+            SubscriptionDescription(esdl_type="ElectricityNetwork", input_name="backup_requested_power", input_unit="W", input_type=h.HelicsDataType.DOUBLE),
+        ]
+        backup_dispatch_outputs = []
+        backup_dispatch_information = HelicsCalculationInformation(
+            time_period_in_seconds=900,
+            offset=0, 
+            uninterruptible=False, 
+            wait_for_current_time_update=False, 
+            terminate_on_error=True, 
+            calculation_name="backup_dispatch", 
+            inputs=backup_dispatch_inputs, 
+            outputs=backup_dispatch_outputs, 
+            calculation_function=self.backup_dispatch
+        )
+        self.add_calculation(backup_dispatch_information)
 
     def init_calculation_service(self, energy_system: EnergySystem):
         all_esdl_objs = EsdlHelperFunctions.get_all_esdl_objects_from_type(energy_system.eAllContents(), GasProducer)
@@ -52,6 +68,8 @@ class BackupgenServiceBase(HelicsSimulationExecutor):
                 self.esdl_obj_mapping[esdl_obj.id] = esdl_obj
 
     
-    def real_time_backup(self, param_dict : dict, simulation_time : datetime, time_step_number : TimeStepInformation, esdl_id : EsdlId, energy_system : EnergySystem):
+    def backup_state(self, param_dict : dict, simulation_time : datetime, time_step_number : TimeStepInformation, esdl_id : EsdlId, energy_system : EnergySystem):
         pass
     
+    def backup_dispatch(self, param_dict : dict, simulation_time : datetime, time_step_number : TimeStepInformation, esdl_id : EsdlId, energy_system : EnergySystem):
+        pass
