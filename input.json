@@ -28,7 +28,7 @@
         {
             "name": "backup_dispatch",
             "time_period_in_seconds": 900,
-            "offset_in_seconds": 0,
+            "offset_in_seconds": 20,
             "description": "Consumes the dispatch command from the EMS.",
             "inputs": [
                 {
