@@ -1,6 +1,15 @@
 from datetime import datetime
 import helics as h
 import logging
+import requests
+
+# Bound InfluxDB HTTP latency to prevent long-run accumulating-buffer hangs.
+_orig_request = requests.Session.request
+def _patched_request(self, method, url, **kwargs):
+    if 'timeout' not in kwargs or kwargs['timeout'] is None:
+        kwargs['timeout'] = 5.0
+    return _orig_request(self, method, url, **kwargs)
+requests.Session.request = _patched_request
 
 from esdl import EnergySystem
 from dots_infrastructure.DataClasses import TimeStepInformation, EsdlId
@@ -70,11 +79,22 @@ class BackupgenService(BackupgenServiceBase):
         actual_power_w = min(max(0.0, requested_power_w), capacity_w)
 
         self._actual_supplied[esdl_id] = actual_power_w
-        
-        status = "ON" if actual_power_w > 0 else "OFF"
-        self.influx_connector.set_time_step_data_point(esdl_id, "backup_dispatch_status", simulation_time, status)
+
         self.influx_connector.set_time_step_data_point(esdl_id, "backup_requested_power_w", simulation_time, requested_power_w)
         self.influx_connector.set_time_step_data_point(esdl_id, "backup_dispatched_power_w", simulation_time, actual_power_w)
+
+        # Periodic InfluxDB flush (once per simulated day).
+        if not hasattr(self, "_steps_since_flush"):
+            self._steps_since_flush = 0
+        self._steps_since_flush += 1
+        if self._steps_since_flush >= 96:
+            try:
+                if self.influx_connector.data_points:
+                    self.influx_connector.write_output()
+                    self.influx_connector.data_points.clear()
+            except Exception as exc:
+                LOGGER.warning("[Influx] Periodic flush failed: %s", exc)
+            self._steps_since_flush = 0
 
         return {}
 
