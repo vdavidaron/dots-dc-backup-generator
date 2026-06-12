@@ -14,11 +14,10 @@ requests.Session.request = _patched_request
 from esdl import EnergySystem
 from dots_infrastructure.DataClasses import TimeStepInformation, EsdlId
 from dots_infrastructure.CalculationServiceHelperFunctions import get_single_param_with_name
+from dots_infrastructure.Logger import LOGGER
 
 from backupgen_service_base import BackupgenServiceBase
 from backupgen_service_dataclasses import BackupStateOutput
-
-LOGGER = logging.getLogger(__name__)
 
 class BackupgenService(BackupgenServiceBase):
 
@@ -30,7 +29,26 @@ class BackupgenService(BackupgenServiceBase):
         LOGGER.info("Initializing Backup Generator Service...")
         self.generators = {}
         self._actual_supplied = {}   # esdl_id -> actual W supplied (computed in dispatch)
-        
+
+        # Scope-1 accounting factors, read from the ESDL ElectricityNetwork KPIs so
+        # the backup agent reports the same diesel emission factor and fuel cost the
+        # Network Balancer aggregates. Falls back to diesel defaults.
+        self.backup_co2_factor = 600.0          # [gCO2/kWh]
+        self.backup_cost_eur_per_kwh = 0.40     # [EUR/kWh]
+        try:
+            for obj in energy_system.eAllContents():
+                ec = getattr(obj, "eClass", None)
+                if ec is not None and ec.name == "ElectricityNetwork" and getattr(obj, "KPIs", None) is not None:
+                    for kpi in obj.KPIs.kpi:
+                        if getattr(kpi, "name", None) == "backup_co2_factor":
+                            self.backup_co2_factor = float(kpi.value)
+                        elif getattr(kpi, "name", None) == "backup_cost_eur_per_kwh":
+                            self.backup_cost_eur_per_kwh = float(kpi.value)
+        except Exception as exc:
+            LOGGER.warning("[Backupgen] Could not read Scope-1 factors from ESDL: %s", exc)
+        LOGGER.info(f"[Backupgen] Scope-1 factors: {self.backup_co2_factor:.0f} gCO2/kWh, "
+                    f"{self.backup_cost_eur_per_kwh:.2f} EUR/kWh")
+
         for esdl_id in self.simulator_configuration.esdl_ids:
             capacity_w = 5_000_000.0
             
@@ -82,6 +100,12 @@ class BackupgenService(BackupgenServiceBase):
 
         self.influx_connector.set_time_step_data_point(esdl_id, "backup_requested_power_w", simulation_time, requested_power_w)
         self.influx_connector.set_time_step_data_point(esdl_id, "backup_dispatched_power_w", simulation_time, actual_power_w)
+
+        # Scope-1 footprint of this dispatch (on-site diesel combustion + fuel cost).
+        dt_h = self.backup_dispatch_period_seconds / 3600.0
+        energy_kwh = (actual_power_w / 1000.0) * dt_h
+        self.influx_connector.set_time_step_data_point(esdl_id, "backup_scope1_carbon_g", simulation_time, self.backup_co2_factor * energy_kwh)
+        self.influx_connector.set_time_step_data_point(esdl_id, "backup_fuel_cost_eur", simulation_time, self.backup_cost_eur_per_kwh * energy_kwh)
 
         # Periodic InfluxDB flush (once per simulated day).
         if not hasattr(self, "_steps_since_flush"):
