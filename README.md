@@ -92,3 +92,9 @@ Build the container image using the local context:
 docker build -t backup-generator-service:latest .
 ```
 The container entrypoint will automatically start the Python executor.
+
+---
+
+## Thesis modifications (MSc)
+
+- **Scope-1 footprint telemetry.** The generator now reads `backup_co2_factor` (default 600 gCO2/kWh) and `backup_cost_eur_per_kwh` (default 0.40 EUR/kWh) from the `ElectricityNetwork` ESDL KPIs and logs `backup_scope1_carbon_g` and `backup_fuel_cost_eur` from its actual dispatched power, so the agent reports its own emissions and fuel cost. The authoritative aggregation into total carbon/cost is done by the Network Balancer (which reads the nameplate from the ESDL rather than subscribing to this federate).
